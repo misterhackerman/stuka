@@ -276,6 +276,12 @@ def set_custom_theme(page):
 def main(page: ft.Page):
     global downloading_listbox, already_downloaded_listbox, progress_bar, main_column
 
+    ph = ft.PermissionHandler()
+    page.overlay.append(ph)
+
+    if not ph.check_permission(ft.PermissionType.MANAGE_EXTERNAL_STORAGE):
+        ph.request_permission(ft.PermissionType.MANAGE_EXTERNAL_STORAGE)
+
     page.fonts = {
         "Nothing": "assets/Nothing.ttf",
     }
