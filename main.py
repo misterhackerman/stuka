@@ -6,6 +6,7 @@ import re
 import threading
 import json
 import time
+import platform
 
 # Constants
 DECOR = ' ::'
@@ -155,8 +156,9 @@ def start_download(category_var, course_var, folder_var, pdf_var, ppt_var, progr
         return
 
     if not folder:
-        show_dialog(page, "Error", "Please select a destination folder.")
-        return
+        folder = get_default_download_directory()
+        folder_var.value = folder
+        folder_var.update()
 
     if not selected_file_types:
         show_dialog(page, "Error", "Please select at least one file type to download.")
@@ -193,6 +195,22 @@ def start_download(category_var, course_var, folder_var, pdf_var, ppt_var, progr
     # Start download thread
     threading.Thread(target=download_thread).start()
 
+def get_default_download_directory():
+    system = platform.system()
+    if system == "Windows":
+        return os.path.join(os.environ["USERPROFILE"], "Downloads")
+    elif system == "Darwin":  # macOS
+        return os.path.join(os.environ["HOME"], "Downloads")
+    elif system == "Linux":
+        return os.path.join(os.environ["HOME"], "Downloads")
+    elif system == "Android":
+        return "/storage/emulated/0/Download"
+    elif system == "iOS":
+        # iOS file system is sandboxed and more complex to access, placeholder path
+        return "/var/mobile/Containers/Data/Application/Downloads"
+    else:
+        raise Exception("Unsupported OS")
+
 def show_dialog(page, title, message):
     dlg = ft.AlertDialog(
         title=ft.Text(title),
@@ -201,7 +219,6 @@ def show_dialog(page, title, message):
     page.dialog = dlg
     page.dialog.open = True
     page.update()
-
 
 def toggle_dark_mode(page):
     global dark_mode
@@ -272,7 +289,7 @@ def main(page: ft.Page):
     )
 
     folder_var = ft.TextField(
-        label="Destination Folder"
+        label="Destination Folder type:/storage/emulated/0/Download"
     )
 
     pdf_var = ft.Checkbox(label="PDF")
@@ -284,32 +301,41 @@ def main(page: ft.Page):
     progress_bar = ft.ProgressBar(value=0, width=600, visible=False)
 
     page.add(
-            ft.Container(content=ft.Column(
-                controls=[
-                    ft.Row(
-                        controls=[
-                            ft.Text("Course Downloader", size=30,),
-                            ft.IconButton(icon=ft.icons.BRIGHTNESS_4, on_click=lambda e: toggle_dark_mode(page))
-                            ]
-                        ),
-                    category_var,
-                    course_var,
-                    folder_var,
-                    ft.Row(controls=[pdf_var, ppt_var]),
-                    ft.Row(
-                        controls=[
-                            ft.ElevatedButton(text="Download", on_click=lambda e: start_download(category_var, course_var, folder_var, pdf_var, ppt_var, progress_bar, downloading_listbox, already_downloaded_listbox, page)),
-                            ]
-                        ),
-                    ft.Text("Downloading..."),
-                    downloading_listbox,
-                    ft.Text("Already downloaded:"),
-                    already_downloaded_listbox,
-                    progress_bar
+         ft.AppBar(
+            title=ft.Text("COURSE DOWNLOADER"),
+            center_title=True,
+            bgcolor=ft.colors.RED_900,
+            actions=[
+                ft.IconButton(
+                    icon=ft.icons.BRIGHTNESS_4,
+                    tooltip="Toggle Dark Mode",
+                    on_click=lambda e: toggle_dark_mode(page),
+                )
+            ],),
+        ft.Column(
+            controls=[
+                ft.Row(
+                    controls=[
+                        ft.Text("                ", size=30,),
                     ]
                 ),
-                         padding=10
-                         )
-            )
+                category_var,
+                course_var,
+                folder_var,
+                ft.Row(controls=[pdf_var, ppt_var]),
+                ft.Row(
+                    controls=[
+                        ft.ElevatedButton(text="Download",bgcolor=ft.colors.RED_900,color=ft.colors.WHITE, on_click=lambda e: start_download(category_var, course_var, folder_var, pdf_var, ppt_var, progress_bar, downloading_listbox, already_downloaded_listbox, page)),
+                    ]
+                ),
+                ft.Text("Downloading..."),
+                downloading_listbox,
+                ft.Text("Already downloaded:"),
+                already_downloaded_listbox,
+                progress_bar
+            ]
+        )
+    )
 
 ft.app(target=main, assets_dir="assets")
+
