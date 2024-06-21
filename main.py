@@ -8,7 +8,9 @@ import json
 import time
 import platform
 
+
 # Constants
+NOTHING_COLOR = "#D71921"
 DECOR = ' ::'
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -154,24 +156,21 @@ def start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbo
                 ),
             padding= 10,
             ),
-                color=ft.colors.RED_900,
-                # surface_tint_color="white",
-                # shadow_color="black",
-                # elevation=100,
-                # margin=10,
+                color=NOTHING_COLOR,
                 ),
         ft.Card(content=ft.Container(
             content=ft.Column(
                 [
-                    ft.Text("Already downloaded:", size=20),
+                    ft.Row([
+                        ft.Icon(ft.icons.ALBUM),
+                        ft.Text("Already downloaded:", size=20),
+                    ]),
                     already_downloaded_listbox,
                     ]
                 ),
             padding= 10,
             ),
-                color=ft.colors.RED_900,
-                # surface_tint_color="white",
-                # shadow_color="black",
+                color=NOTHING_COLOR,
                 ),
         progress_bar
 
@@ -285,7 +284,7 @@ def set_custom_theme(page):
     if dark_mode:
         page.theme_mode = ft.ThemeMode.DARK
         page.dark_theme = ft.Theme(
-            color_scheme_seed=ft.colors.BLUE,
+            color_scheme_seed="#1B1B1D",
             use_material3=True,
             font_family="Nothing",
             visual_density="comfortable",
@@ -351,7 +350,7 @@ def main(page: ft.Page):
                 ft.Row(controls=[pdf_checkbox, ppt_checkbox]),
                 ft.Row(
                     controls=[
-                        ft.ElevatedButton(text="Download",bgcolor=ft.colors.RED_900,color=ft.colors.WHITE, on_click=lambda e: start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page)),
+                        ft.ElevatedButton(text="Download",bgcolor=NOTHING_COLOR,color=ft.colors.WHITE, on_click=lambda e: start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page)),
                         ]
                     )
                 ]
@@ -360,9 +359,9 @@ def main(page: ft.Page):
 
     page.add(
             ft.AppBar(
-                title=ft.Text("COURSE DOWNLOADER"),
+                title=ft.Text("COURSE DOWNLOADER", color="white"),
                 center_title=True,
-                bgcolor=ft.colors.RED_900,
+                bgcolor="#1B1B1D",
                 actions=[
                     ft.IconButton(
                         icon=ft.icons.BRIGHTNESS_4,
