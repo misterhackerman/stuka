@@ -142,11 +142,38 @@ def start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbo
     folder = folder_field.value
 
     main_column.controls.extend([
-                ft.Text("Downloading..."),
-                downloading_listbox,
-                ft.Text("Already downloaded:"),
-                already_downloaded_listbox,
-                progress_bar
+        ft.Card(content=ft.Container(
+            content=ft.Column(
+                [
+                    ft.Row([
+                        ft.Icon(ft.icons.DOWNLOAD),
+                        ft.Text("Downloading...", size=20 ),
+                        ]),
+                    downloading_listbox,
+                    ]
+                ),
+            padding= 10,
+            ),
+                color=ft.colors.RED_900,
+                # surface_tint_color="white",
+                # shadow_color="black",
+                # elevation=100,
+                # margin=10,
+                ),
+        ft.Card(content=ft.Container(
+            content=ft.Column(
+                [
+                    ft.Text("Already downloaded:", size=20),
+                    already_downloaded_listbox,
+                    ]
+                ),
+            padding= 10,
+            ),
+                color=ft.colors.RED_900,
+                # surface_tint_color="white",
+                # shadow_color="black",
+                ),
+        progress_bar
 
         ])
     page.update()
@@ -300,7 +327,7 @@ def main(page: ft.Page):
     )
 
     folder_field = ft.TextField(
-        label="Destination Folder type:/storage/emulated/0/Download"
+        label="Destination Folder"
     )
 
     pdf_checkbox = ft.Checkbox(label="PDF")
