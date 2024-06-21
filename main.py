@@ -212,9 +212,9 @@ def get_default_download_directory():
         return os.path.join(os.environ["USERPROFILE"], "Downloads")
     elif system == "Darwin":  # macOS
         return os.path.join(os.environ["HOME"], "Downloads")
-    elif system == "Linux":
+    elif system == "Linux" and "ANDROID_STORAGE" not in os.environ:
         return os.path.join(os.environ["HOME"], "Downloads")
-    elif system == "Android":
+    elif system == "Linux" and "ANDROID_STORAGE" in os.environ:
         return "/storage/emulated/0/Download"
     elif system == "iOS":
         # iOS file system is sandboxed and more complex to access, placeholder path
