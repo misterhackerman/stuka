@@ -136,15 +136,26 @@ def download_from_dict(path_link_dict, folder, progress_bar, downloading_listbox
         progress_bar.value = progress
         progress_bar.update()
 
-def start_download(category_var, course_var, folder_var, pdf_var, ppt_var, progress_bar, downloading_listbox, already_downloaded_listbox, page):
-    category_name = category_var.value
-    course_name = course_var.value
-    folder = folder_var.value
+def start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page):
+    category_name = category_dropdown.value
+    course_name = course_dropdown.value
+    folder = folder_field.value
+
+    main_column.controls.extend([
+                ft.Text("Downloading..."),
+                downloading_listbox,
+                ft.Text("Already downloaded:"),
+                already_downloaded_listbox,
+                progress_bar
+
+        ])
+    page.update()
+
 
     selected_file_types = []
-    if pdf_var.value:
+    if pdf_checkbox.value:
         selected_file_types.append('.pdf')
-    if ppt_var.value:
+    if ppt_checkbox.value:
         selected_file_types.append('.ppt')
 
     if category_name == "Select a category":
@@ -157,8 +168,8 @@ def start_download(category_var, course_var, folder_var, pdf_var, ppt_var, progr
 
     if not folder:
         folder = get_default_download_directory()
-        folder_var.value = folder
-        folder_var.update()
+        folder_field.value = folder
+        folder_field.update()
 
     if not selected_file_types:
         show_dialog(page, "Error", "Please select at least one file type to download.")
@@ -227,8 +238,8 @@ def toggle_dark_mode(page):
     save_state()
     page.update()
 
-def update_courses_menu(e, category_var, course_var):
-    category_name = category_var.value
+def update_courses_menu(e, category_dropdown, course_dropdown):
+    category_name = category_dropdown.value
     if category_name == "Select a category":
         return
 
@@ -239,8 +250,8 @@ def update_courses_menu(e, category_var, course_var):
         show_dialog(e.page, "Error", f"Failed to fetch courses: {e}")
         return
 
-    course_var.options = [ft.dropdown.Option(key=course[1], text=course[1]) for course in courses]
-    course_var.update()
+    course_dropdown.options = [ft.dropdown.Option(key=course[1], text=course[1]) for course in courses]
+    course_dropdown.update()
 
 def set_custom_theme(page):
 
@@ -263,7 +274,7 @@ def set_custom_theme(page):
     page.update()
 
 def main(page: ft.Page):
-    global downloading_listbox, already_downloaded_listbox, progress_bar
+    global downloading_listbox, already_downloaded_listbox, progress_bar, main_column
 
     page.fonts = {
         "Nothing": "assets/Nothing.ttf",
@@ -277,65 +288,63 @@ def main(page: ft.Page):
 
     set_custom_theme(page)
 
-    category_var = ft.dropdown.Dropdown(
+    category_dropdown = ft.dropdown.Dropdown(
         label="Category",
         options=[ft.dropdown.Option(key=key, text=key) for key in categories.keys()],
-         value="Select a category", on_change=lambda e: update_courses_menu(e, category_var, course_var),
+         value="Select a category", on_change=lambda e: update_courses_menu(e, category_dropdown, course_dropdown),
     )
 
-    course_var = ft.dropdown.Dropdown(
+    course_dropdown = ft.dropdown.Dropdown(
         label="Course",
         options=[]
     )
 
-    folder_var = ft.TextField(
+    folder_field = ft.TextField(
         label="Destination Folder type:/storage/emulated/0/Download"
     )
 
-    pdf_var = ft.Checkbox(label="PDF")
-    ppt_var = ft.Checkbox(label="PPT")
+    pdf_checkbox = ft.Checkbox(label="PDF")
+    ppt_checkbox = ft.Checkbox(label="PPT")
 
     downloading_listbox = ft.ListView(height=200, width=400)
     already_downloaded_listbox = ft.ListView(height=200, width=400)
 
     progress_bar = ft.ProgressBar(value=0, width=600, visible=False)
 
-    page.add(
-         ft.AppBar(
-            title=ft.Text("COURSE DOWNLOADER"),
-            center_title=True,
-            bgcolor=ft.colors.RED_900,
-            actions=[
-                ft.IconButton(
-                    icon=ft.icons.BRIGHTNESS_4,
-                    tooltip="Toggle Dark Mode",
-                    on_click=lambda e: toggle_dark_mode(page),
-                )
-            ],),
-        ft.Column(
+    main_column =  ft.Column(
             controls=[
                 ft.Row(
                     controls=[
                         ft.Text("                ", size=30,),
-                    ]
-                ),
-                category_var,
-                course_var,
-                folder_var,
-                ft.Row(controls=[pdf_var, ppt_var]),
+                        ]
+                    ),
+                category_dropdown,
+                course_dropdown,
+                folder_field,
+                ft.Row(controls=[pdf_checkbox, ppt_checkbox]),
                 ft.Row(
                     controls=[
-                        ft.ElevatedButton(text="Download",bgcolor=ft.colors.RED_900,color=ft.colors.WHITE, on_click=lambda e: start_download(category_var, course_var, folder_var, pdf_var, ppt_var, progress_bar, downloading_listbox, already_downloaded_listbox, page)),
-                    ]
-                ),
-                ft.Text("Downloading..."),
-                downloading_listbox,
-                ft.Text("Already downloaded:"),
-                already_downloaded_listbox,
-                progress_bar
-            ]
-        )
-    )
+                        ft.ElevatedButton(text="Download",bgcolor=ft.colors.RED_900,color=ft.colors.WHITE, on_click=lambda e: start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page)),
+                        ]
+                    )
+                ]
+            )
+
+
+    page.add(
+            ft.AppBar(
+                title=ft.Text("COURSE DOWNLOADER"),
+                center_title=True,
+                bgcolor=ft.colors.RED_900,
+                actions=[
+                    ft.IconButton(
+                        icon=ft.icons.BRIGHTNESS_4,
+                        tooltip="Toggle Dark Mode",
+                        on_click=lambda e: toggle_dark_mode(page),
+                        )
+                    ],),
+                main_column
+                )
 
 ft.app(target=main, assets_dir="assets")
 
