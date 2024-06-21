@@ -335,7 +335,7 @@ def main(page: ft.Page):
     downloading_listbox = ft.ListView(height=200, width=400)
     already_downloaded_listbox = ft.ListView(height=200, width=400)
 
-    progress_bar = ft.ProgressBar(value=0, width=600, visible=False)
+    progress_bar = ft.ProgressBar(value=0, width=600, visible=False, bar_height=10, border_radius=ft.border_radius.all(10))
 
     main_column =  ft.Column(
             controls=[
