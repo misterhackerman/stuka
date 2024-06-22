@@ -17,8 +17,8 @@ HEADERS = {
         }
 STATE_FILE = "app_state.json"
 
-# Categories data
-categories = {
+# CATEGORIES data
+CATEGORIES = {
         'Sha3\'af': 'https://msc-mu.com/level/18',
         'Athar': 'https://msc-mu.com/level/17',
         'Rou7': 'https://msc-mu.com/level/16',
@@ -31,15 +31,16 @@ categories = {
 
 # Load and save application state
 def load_state():
-    global dark_mode, download_progress
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE, 'r') as file:
             state = json.load(file)
             dark_mode = state.get("dark_mode", False)
             download_progress = state.get("download_progress", {})
+            return dark_mode, download_progress
     else:
         dark_mode = False
         download_progress = {}
+        return dark_mode, download_progress
 
 def save_state():
     with open(STATE_FILE, 'w') as file:
@@ -108,7 +109,7 @@ def find_files_paths_and_links(navigation_dict, soup, file_types):
         files_list.append([file_path, file_link, basename])
     return files_list
 
-def download_from_dict(path_link_dict, folder, progress_bar, downloading_listbox, already_downloaded_listbox):
+def download_from_dict(path_link_dict, folder, progress_bar, downloading_listview, already_downloaded_listview):
     counter = 0
     total_files = len(path_link_dict)
 
@@ -119,8 +120,8 @@ def download_from_dict(path_link_dict, folder, progress_bar, downloading_listbox
 
         if os.path.isfile(os.path.join(full_path, name)):
             print('[ Already there! ] ' + name + count)
-            already_downloaded_listbox.controls.append(ft.Text(name))
-            already_downloaded_listbox.update()
+            already_downloaded_listview.controls.append(ft.Text(name))
+            already_downloaded_listview.update()
             continue
 
         if not os.path.isdir(full_path):
@@ -130,15 +131,15 @@ def download_from_dict(path_link_dict, folder, progress_bar, downloading_listbox
         with open(os.path.join(full_path, name), 'wb') as file:
             file.write(response.content)
         print(DECOR + ' Downloaded ' + name + count)
-        downloading_listbox.controls.append(ft.Text(name))
-        downloading_listbox.update()
+        downloading_listview.controls.append(ft.Text(name))
+        downloading_listview.update()
 
         # Update the progress bar
         progress = counter / total_files
         progress_bar.value = progress
         progress_bar.update()
 
-def start_download(e, category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page):
+def start_download(e, category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listview, already_downloaded_listview, page):
     category_name = category_dropdown.value
     course_name = course_dropdown.value
     folder = folder_field.value
@@ -170,7 +171,7 @@ def start_download(e, category_dropdown, course_dropdown, folder_field, pdf_chec
 
     download_btn.disabled = False
 
-    category_url = categories[category_name]
+    category_url = CATEGORIES[category_name]
     try:
         courses = find_courses(category_url)
     except Exception as e:
@@ -195,7 +196,7 @@ def start_download(e, category_dropdown, course_dropdown, folder_field, pdf_chec
             file_dict = find_files_paths_and_links(nav_dict, soup, selected_file_types)
 
             progress_bar.visible = True
-            download_from_dict(file_dict, download_folder, progress_bar, downloading_listbox, already_downloaded_listbox)
+            download_from_dict(file_dict, download_folder, progress_bar, downloading_listview, already_downloaded_listview)
             progress_bar.visible = False  # Hide progress bar after download completes
             show_dialog(page, "Success", "Download complete!")
         except Exception as e:
@@ -231,8 +232,7 @@ def show_dialog(page, title, message):
     page.dialog.open = True
     page.update()
 
-def toggle_dark_mode(page):
-    global dark_mode
+def toggle_dark_mode(page, dark_mode):
     dark_mode = not dark_mode
     set_custom_theme(page)
     save_state()
@@ -243,7 +243,7 @@ def update_courses_menu(e, category_dropdown, course_dropdown):
     if category_name == "Select a category":
         return
 
-    category_url = categories[category_name]
+    category_url = CATEGORIES[category_name]
     try:
         courses = find_courses(category_url)
     except Exception as e:
@@ -274,7 +274,7 @@ def set_custom_theme(page):
     page.update()
 
 def main(page: ft.Page):
-    global downloading_listbox, already_downloaded_listbox, progress_bar, main_column, geeky_listview, geeky_btn, download_btn
+    global downloading_listview, already_downloaded_listview, progress_bar, main_column, geeky_listview, geeky_btn, download_btn
 
     def show_geek(e):
         if geeky_card.visible == False:
@@ -298,11 +298,14 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.START
     page.scroll = ft.ScrollMode.AUTO
 
+
     set_custom_theme(page)
+
+    # Defining UI elements
 
     category_dropdown = ft.dropdown.Dropdown(
             label="Category",
-            options=[ft.dropdown.Option(key=key, text=key) for key in categories.keys()],
+            options=[ft.dropdown.Option(key=key, text=key) for key in CATEGORIES.keys()],
             value="Select a category", on_change=lambda e: update_courses_menu(e, category_dropdown, course_dropdown),
             )
 
@@ -318,8 +321,8 @@ def main(page: ft.Page):
     pdf_checkbox = ft.Checkbox(label="PDF")
     ppt_checkbox = ft.Checkbox(label="PPT")
 
-    downloading_listbox = ft.ListView(height=125, width=400)
-    already_downloaded_listbox = ft.ListView(height=125, width=400)
+    downloading_listview = ft.ListView(height=125, width=400)
+    already_downloaded_listview = ft.ListView(height=125, width=400)
     geeky_listview = ft.ListView(height=75, width=400)
 
     downloading_card = ft.Card(content=ft.Container(
@@ -329,7 +332,7 @@ def main(page: ft.Page):
                     ft.Icon(ft.icons.DOWNLOAD),
                     ft.Text("Downloading...", size=20 ),
                     ]),
-                downloading_listbox,
+                downloading_listview,
                 ]
             ),
         padding= 10,
@@ -344,7 +347,7 @@ def main(page: ft.Page):
                     ft.Icon(ft.icons.ALBUM),
                     ft.Text("Already downloaded:", size=20),
                     ]),
-                already_downloaded_listbox,
+                already_downloaded_listview,
                 ]
             ),
         padding= 10,
@@ -373,7 +376,7 @@ def main(page: ft.Page):
             text="Download",
             bgcolor=NOTHING_COLOR,
             color=ft.colors.WHITE,
-            on_click=lambda e: start_download(e, category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page)
+            on_click=lambda e: start_download(e, category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listview, already_downloaded_listview, page)
             )
     geeky_btn = ft.ElevatedButton(
             text="Hide details",
