@@ -205,11 +205,11 @@ def main(page: ft.Page):
         page.update()
 
         category_url = CATEGORIES[category_name]
-        # try:
-        courses = scraper.find_courses(category_url)
-        # except Exception as e:
-        #     show_dialog(page, "Error", f"Failed to fetch courses: {e}")
-        #     return
+        try:
+            courses = scraper.find_courses(category_url)
+        except Exception as e:
+            show_dialog(page, "Error", f"Failed to fetch courses: {e}")
+            return
 
         course_number = next(course[2] for course in courses if course[1] == course_name)
         download_folder = scraper.make_course_folder(folder, course_name)
