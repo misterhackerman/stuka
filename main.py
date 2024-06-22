@@ -97,7 +97,7 @@ class Scraper:
         return files_list
 
 
-    def download_from_dict(self, path_link_dict, folder, progress_bar, downloading_listview, already_downloaded_listview):
+    def download_from_dict(self, path_link_dict, folder, progress_container, downloading_listview, already_downloaded_listview):
         counter = 0
         total_files = len(path_link_dict)
 
@@ -124,8 +124,8 @@ class Scraper:
 
             # Update the progress bar
             progress = counter / total_files
-            progress_bar.value = progress
-            progress_bar.update()
+            progress_container.value = progress
+            progress_container.update()
 
 def get_default_download_directory():
     system = platform.system()
@@ -231,15 +231,15 @@ def main(page: ft.Page):
                 nav_dict = scraper.create_nav_links_dictionary(soup)
                 file_dict = scraper.find_files_paths_and_links(nav_dict, soup, selected_file_types)
 
-                progress_bar.visible = True
-                scraper.download_from_dict(file_dict, download_folder, progress_bar, downloading_listview, already_downloaded_listview)
-                progress_bar.visible = False  # Hide progress bar after download completes
+                progress_container.visible = True
+                scraper.download_from_dict(file_dict, download_folder, progress_container, downloading_listview, already_downloaded_listview)
+                progress_container.visible = False  # Hide progress bar after download completes
                 show_dialog(page, "Success", "Download complete!")
                 download_btn.disabled = False
                 download_btn.update()
 
             except Exception as e:
-                progress_bar.visible = False  # Ensure progress bar is hidden on error
+                progress_container.visible = False  # Ensure progress bar is hidden on error
                 download_btn.disabled = True
                 show_dialog(page, "Error", f"An error occurred: {e}")
 
@@ -411,16 +411,17 @@ def main(page: ft.Page):
             on_click=toggle_geek
             )
 
-    progress_bar = ft.ProgressBar(
-            value=0,
-            width=600,
-            bar_height=10,
-            border_radius=ft.border_radius.all(10),
+    progress_container = ft.Container(
             visible=False,
-            color="#5C0000",
-            bgcolor="#000000",
-            
-
+            padding=ft.padding.symmetric(0,10),
+            content=ft.ProgressBar(
+                value=0,
+                width=600,
+                bar_height=10,
+                border_radius=ft.border_radius.all(10),
+                color="#5C0000",
+                bgcolor="#000000",
+                ),
             )
 
     app_bar = ft.AppBar(
@@ -447,7 +448,7 @@ def main(page: ft.Page):
                     ft.Row(controls=[pdf_checkbox,ppt_checkbox]),
                     ft.Row(controls=[download_btn,geeky_btn]),
                     geeky_card,
-                    ft.Container(content=progress_bar, padding=ft.padding.symmetric(0,10)),
+                    progress_container,
                     downloading_card,
                     already_card,
                     ]
