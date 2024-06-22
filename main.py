@@ -400,7 +400,8 @@ def main(page: ft.Page):
             text="Download",
             bgcolor="#5C0000",
             color=ft.colors.WHITE,
-            on_click=start_download
+            on_click=start_download,
+
             )
 
     geeky_btn = ft.ElevatedButton(
@@ -415,7 +416,11 @@ def main(page: ft.Page):
             width=600,
             bar_height=10,
             border_radius=ft.border_radius.all(10),
-            visible=False
+            visible=False,
+            color="#5C0000",
+            bgcolor="#000000",
+            
+
             )
 
     app_bar = ft.AppBar(
@@ -442,7 +447,7 @@ def main(page: ft.Page):
                     ft.Row(controls=[pdf_checkbox,ppt_checkbox]),
                     ft.Row(controls=[download_btn,geeky_btn]),
                     geeky_card,
-                    progress_bar,
+                    ft.Container(content=progress_bar, padding=ft.padding.symmetric(0,10)),
                     downloading_card,
                     already_card,
                     ]
