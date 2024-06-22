@@ -1,4 +1,5 @@
 import flet as ft
+from flet_core.icons import DARK_MODE
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -255,11 +256,13 @@ def main(page: ft.Page):
         geeky_card.update()
 
     def toggle_dark_mode(e):
-        dark_mode = not dark_mode
-        set_custom_theme(page)
+        if page.theme_mode == ft.ThemeMode.DARK:
+            dark_mode = False
+        else:
+            dark_mode = True
+        set_custom_theme(page, dark_mode)
 
-    def set_custom_theme(page):
-
+    def set_custom_theme(page, dark_mode):
         if dark_mode:
             page.theme_mode = ft.ThemeMode.DARK
             page.dark_theme = ft.Theme(
@@ -280,7 +283,7 @@ def main(page: ft.Page):
 
     # Defining UI elements:
 
-    set_custom_theme(page)
+    set_custom_theme(page, dark_mode=True)
 
     category_dropdown = ft.dropdown.Dropdown(
             label="Category",
@@ -310,52 +313,56 @@ def main(page: ft.Page):
 
     geeky_listview = ft.ListView(height=75, width=400, auto_scroll=True)
 
-    downloading_card = ft.Card(content=ft.Container(
-        content=ft.Column(
-            [
-                ft.Row([
-                    ft.Icon(ft.icons.DOWNLOAD),
-                    ft.Text("Downloading...", size=20 ),
-                    ]),
-                downloading_listview,
-                ]
-            ),
-        padding= 10,
-        ),
-                               color=NOTHING_COLOR,
-                               )
+    downloading_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Row([
+                            ft.Icon(ft.icons.DOWNLOAD),
+                            ft.Text("Downloading...", size=20 ),
+                            ]),
+                        downloading_listview,
+                        ]
+                    ),
+                padding= 10,
+                # blur=ft.Blur(10,10,ft.BlurTileMode.REPEATED),
+                # border_radius=50,
+                ),
+            color=NOTHING_COLOR,
+            )
 
-    already_card = ft.Card(content=ft.Container(
-        content=ft.Column(
-            [
-                ft.Row([
-                    ft.Icon(ft.icons.ALBUM),
-                    ft.Text("Already downloaded:", size=20),
-                    ]),
-                already_downloaded_listview,
-                ]
-            ),
-        padding= 10,
-        ),
-                           color=NOTHING_COLOR,
-                           )
+    already_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Row([
+                            ft.Icon(ft.icons.ALBUM),
+                            ft.Text("Already downloaded:", size=20),
+                            ]),
+                        already_downloaded_listview,
+                        ]
+                    ),
+                padding= 10,
+                ),
+            color=NOTHING_COLOR,
+            )
 
-    geeky_card = ft.Card(content=ft.Container(
-        content=ft.Column(
-            [
-                ft.Row([
-                    ft.Icon(ft.icons.TERMINAL),
-                    ft.Text("What's going on >", size=20 ),
-                    ]),
-                geeky_listview,
-                ]
-            ),
-        padding= 10,
-        ),
-                         color="black",
-                         visible=True,
-
-                         )
+    geeky_card = ft.Card(
+            content=ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Row([
+                            ft.Icon(ft.icons.TERMINAL),
+                            ft.Text("What's going on >>", size=20 ),
+                            ]),
+                        geeky_listview,
+                        ]
+                    ),
+                padding= 10,
+                ),
+            color="black",
+            visible=True,
+            )
 
     download_btn = ft.ElevatedButton(
             text="Download",
