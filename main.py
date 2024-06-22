@@ -191,7 +191,7 @@ def main(page: ft.Page):
             show_dialog(page, "Error", "Please select a category.")
             return
 
-        if course_name == "Select a course":
+        if not course_name:
             show_dialog(page, "Error", "Please select a course.")
             return
 
