@@ -31,12 +31,6 @@ class Scraper:
     def __init__(self):
         pass
 
-    def load_state(self):
-        pass
-
-    def save_state(self):
-        pass
-
     def find_courses(self, url):
         page = requests.get(url, headers=HEADERS)
         doc = BeautifulSoup(page.text, 'html.parser')
@@ -124,7 +118,7 @@ class Scraper:
 
             # Update the progress bar
             progress = counter / total_files
-            progress_container.value = progress
+            progress_container.content.value = progress
             progress_container.update()
 
 def get_default_download_directory():
@@ -206,6 +200,9 @@ def main(page: ft.Page):
 
         download_btn.disabled = True
         download_btn.update()
+        downloading_card.visible = True
+        already_card.visible = True
+        page.update()
 
         category_url = CATEGORIES[category_name]
         # try:
@@ -237,6 +234,9 @@ def main(page: ft.Page):
                 show_dialog(page, "Success", "Download complete!")
                 download_btn.disabled = False
                 download_btn.update()
+                downloading_card.visible = False
+                already_card.visible = False
+                page.update()
 
             except Exception as e:
                 progress_container.visible = False  # Ensure progress bar is hidden on error
@@ -285,17 +285,23 @@ def main(page: ft.Page):
 
     category_dropdown = ft.dropdown.Dropdown(
             label="Category",
+            label_style=ft.TextStyle(color="white"),
             options=[ft.dropdown.Option(key=key, text=key) for key in CATEGORIES.keys()],
             value="Select a category",
             on_change=category_selected,
+            focused_border_color="#5C0000",
+
             )
 
     course_dropdown = ft.dropdown.Dropdown(
             label="Course",
+            label_style=ft.TextStyle(color="white"),
             options=[],
-            visible=False
+            visible=False,
+            focused_border_color="#5C0000",
             )
 
+    # TODO make a killswitch so that stupid niggas can fuck the app.
     folder_field = ft.TextField(
             label="Destination Folder",
             visible=False
@@ -313,13 +319,14 @@ def main(page: ft.Page):
                                check_color="white"
                                )
 
-    downloading_listview = ft.ListView(height=125, width=400, auto_scroll=True)
+    downloading_listview = ft.ListView(height=100, width=400, auto_scroll=True)
 
-    already_downloaded_listview = ft.ListView(height=125, width=400, auto_scroll=True)
+    already_downloaded_listview = ft.ListView(height=100, width=400, auto_scroll=True)
 
     geeky_listview = ft.ListView(height=75, width=400, auto_scroll=True)
 
     downloading_card = ft.Card(
+            visible=False,
             color=NOTHING_COLOR,
             elevation=4,
             content=ft.Container(
@@ -346,6 +353,7 @@ def main(page: ft.Page):
             )
 
     already_card = ft.Card(
+            visible=False,
             content=ft.Container(
                 content=ft.Column(
                     [
@@ -440,18 +448,21 @@ def main(page: ft.Page):
 
     page.add(
             app_bar,
-            ft.Column(
-                controls=[
-                    category_dropdown,
-                    course_dropdown,
-                    folder_field,
-                    ft.Row(controls=[pdf_checkbox,ppt_checkbox]),
-                    ft.Row(controls=[download_btn,geeky_btn]),
-                    geeky_card,
-                    progress_container,
-                    downloading_card,
-                    already_card,
-                    ]
+            ft.Container(
+                ft.Column(
+                    controls=[
+                        category_dropdown,
+                        course_dropdown,
+                        folder_field,
+                        ft.Row(controls=[pdf_checkbox,ppt_checkbox]),
+                        ft.Row(controls=[download_btn,geeky_btn]),
+                        geeky_card,
+                        progress_container,
+                        downloading_card,
+                        already_card,
+                        ]
+                    ),
+                padding=10
                 )
             )
 
