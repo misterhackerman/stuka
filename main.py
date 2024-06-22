@@ -13,21 +13,21 @@ import platform
 NOTHING_COLOR = "#D71921"
 DECOR = ' ::'
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-}
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
 STATE_FILE = "app_state.json"
 
 # Categories data
 categories = {
-    'Sha3\'af': 'https://msc-mu.com/level/18',
-    'Athar': 'https://msc-mu.com/level/17',
-    'Rou7': 'https://msc-mu.com/level/16',
-    'Wateen': 'https://msc-mu.com/level/15',
-    'Nabed': 'https://msc-mu.com/level/14',
-    'Wareed': 'https://msc-mu.com/level/13',
-    'Minors': 'https://msc-mu.com/level/10',
-    'Majors': 'https://msc-mu.com/level/9'
-}
+        'Sha3\'af': 'https://msc-mu.com/level/18',
+        'Athar': 'https://msc-mu.com/level/17',
+        'Rou7': 'https://msc-mu.com/level/16',
+        'Wateen': 'https://msc-mu.com/level/15',
+        'Nabed': 'https://msc-mu.com/level/14',
+        'Wareed': 'https://msc-mu.com/level/13',
+        'Minors': 'https://msc-mu.com/level/10',
+        'Majors': 'https://msc-mu.com/level/9'
+        }
 
 # Load and save application state
 def load_state():
@@ -44,9 +44,9 @@ def load_state():
 def save_state():
     with open(STATE_FILE, 'w') as file:
         state = {
-            "dark_mode": dark_mode,
-            "download_progress": download_progress
-        }
+                "dark_mode": dark_mode,
+                "download_progress": download_progress
+                }
         json.dump(state, file)
 
 def find_courses(url):
@@ -138,49 +138,16 @@ def download_from_dict(path_link_dict, folder, progress_bar, downloading_listbox
         progress_bar.value = progress
         progress_bar.update()
 
-def start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page):
+def start_download(e, category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page):
     category_name = category_dropdown.value
     course_name = course_dropdown.value
     folder = folder_field.value
-
-    main_column.controls.extend([
-        ft.Card(content=ft.Container(
-            content=ft.Column(
-                [
-                    ft.Row([
-                        ft.Icon(ft.icons.DOWNLOAD),
-                        ft.Text("Downloading...", size=20 ),
-                        ]),
-                    downloading_listbox,
-                    ]
-                ),
-            padding= 10,
-            ),
-                color=NOTHING_COLOR,
-                ),
-        ft.Card(content=ft.Container(
-            content=ft.Column(
-                [
-                    ft.Row([
-                        ft.Icon(ft.icons.ALBUM),
-                        ft.Text("Already downloaded:", size=20),
-                    ]),
-                    already_downloaded_listbox,
-                    ]
-                ),
-            padding= 10,
-            ),
-                color=NOTHING_COLOR,
-                ),
-        progress_bar
-
-        ])
-    page.update()
 
 
     selected_file_types = []
     if pdf_checkbox.value:
         selected_file_types.append('.pdf')
+
     if ppt_checkbox.value:
         selected_file_types.append('.ppt')
 
@@ -201,6 +168,8 @@ def start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbo
         show_dialog(page, "Error", "Please select at least one file type to download.")
         return
 
+    download_btn.disabled = False
+
     category_url = categories[category_name]
     try:
         courses = find_courses(category_url)
@@ -215,8 +184,12 @@ def start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbo
     def download_thread():
         try:
             print(DECOR + ' Requesting page...')
+            geeky_listview.controls.append(ft.Text(DECOR + ' Requesting page...'))
+            geeky_listview.update()
             course_page = requests.get(download_url, headers=HEADERS)
             print(DECOR + ' Parsing page into a soup...')
+            geeky_listview.controls.append(ft.Text(DECOR + ' Parsing page into a soup...'))
+            geeky_listview.update()
             soup = BeautifulSoup(course_page.text, 'html.parser')
             nav_dict = create_nav_links_dictionary(soup)
             file_dict = find_files_paths_and_links(nav_dict, soup, selected_file_types)
@@ -227,6 +200,7 @@ def start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbo
             show_dialog(page, "Success", "Download complete!")
         except Exception as e:
             progress_bar.visible = False  # Ensure progress bar is hidden on error
+            download_btn.disabled = True
             show_dialog(page, "Error", f"An error occurred: {e}")
 
     # Start download thread
@@ -250,9 +224,9 @@ def get_default_download_directory():
 
 def show_dialog(page, title, message):
     dlg = ft.AlertDialog(
-        title=ft.Text(title),
-        content=ft.Text(message),
-    )
+            title=ft.Text(title),
+            content=ft.Text(message),
+            )
     page.dialog = dlg
     page.dialog.open = True
     page.update()
@@ -284,27 +258,39 @@ def set_custom_theme(page):
     if dark_mode:
         page.theme_mode = ft.ThemeMode.DARK
         page.dark_theme = ft.Theme(
-            color_scheme_seed="#1B1B1D",
-            use_material3=True,
-            font_family="Nothing",
-            visual_density="comfortable",
-        )
+                color_scheme_seed="#1B1B1D",
+                use_material3=True,
+                font_family="Nothing",
+                visual_density="comfortable",
+                )
     else:
         page.theme_mode = ft.ThemeMode.LIGHT
         page.theme = ft.Theme(
-            color_scheme_seed=ft.colors.RED,
-            use_material3=True,
-            font_family="Nothing",
-            visual_density="comfortable",
-        )
+                color_scheme_seed=ft.colors.RED,
+                use_material3=True,
+                font_family="Nothing",
+                visual_density="comfortable",
+                )
     page.update()
 
 def main(page: ft.Page):
-    global downloading_listbox, already_downloaded_listbox, progress_bar, main_column
+    global downloading_listbox, already_downloaded_listbox, progress_bar, main_column, geeky_listview, geeky_btn, download_btn
+
+    def show_geek(e):
+        if geeky_card.visible == False:
+            geeky_card.visible = True
+            geeky_card.update()
+            geeky_btn.text = "Hide details"
+            geeky_btn.update()
+        else:
+            geeky_card.visible = False
+            geeky_card.update()
+            geeky_btn.text = "Show details"
+            geeky_btn.update()
 
     page.fonts = {
-        "Nothing": "assets/Nothing.ttf",
-    }
+            "Nothing": "assets/Nothing.ttf",
+            }
     page.icon = "assets/icon.png"
 
     load_state()
@@ -315,44 +301,105 @@ def main(page: ft.Page):
     set_custom_theme(page)
 
     category_dropdown = ft.dropdown.Dropdown(
-        label="Category",
-        options=[ft.dropdown.Option(key=key, text=key) for key in categories.keys()],
-         value="Select a category", on_change=lambda e: update_courses_menu(e, category_dropdown, course_dropdown),
-    )
+            label="Category",
+            options=[ft.dropdown.Option(key=key, text=key) for key in categories.keys()],
+            value="Select a category", on_change=lambda e: update_courses_menu(e, category_dropdown, course_dropdown),
+            )
 
     course_dropdown = ft.dropdown.Dropdown(
-        label="Course",
-        options=[]
-    )
+            label="Course",
+            options=[]
+            )
 
     folder_field = ft.TextField(
-        label="Destination Folder"
-    )
+            label="Destination Folder"
+            )
 
     pdf_checkbox = ft.Checkbox(label="PDF")
     ppt_checkbox = ft.Checkbox(label="PPT")
 
-    downloading_listbox = ft.ListView(height=200, width=400)
-    already_downloaded_listbox = ft.ListView(height=200, width=400)
+    downloading_listbox = ft.ListView(height=125, width=400)
+    already_downloaded_listbox = ft.ListView(height=125, width=400)
+    geeky_listview = ft.ListView(height=75, width=400)
+
+    downloading_card = ft.Card(content=ft.Container(
+        content=ft.Column(
+            [
+                ft.Row([
+                    ft.Icon(ft.icons.DOWNLOAD),
+                    ft.Text("Downloading...", size=20 ),
+                    ]),
+                downloading_listbox,
+                ]
+            ),
+        padding= 10,
+        ),
+                               color=NOTHING_COLOR,
+                               )
+
+    already_card = ft.Card(content=ft.Container(
+        content=ft.Column(
+            [
+                ft.Row([
+                    ft.Icon(ft.icons.ALBUM),
+                    ft.Text("Already downloaded:", size=20),
+                    ]),
+                already_downloaded_listbox,
+                ]
+            ),
+        padding= 10,
+        ),
+                           color=NOTHING_COLOR,
+                           )
+
+    geeky_card = ft.Card(content=ft.Container(
+        content=ft.Column(
+            [
+                ft.Row([
+                    ft.Icon(ft.icons.TERMINAL),
+                    ft.Text("What's going on >", size=20 ),
+                    ]),
+                geeky_listview,
+                ]
+            ),
+        padding= 10,
+        ),
+                         color="black",
+                         visible=True,
+
+                         )
+
+    download_btn = ft.ElevatedButton(
+            text="Download",
+            bgcolor=NOTHING_COLOR,
+            color=ft.colors.WHITE,
+            on_click=lambda e: start_download(e, category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page)
+            )
+    geeky_btn = ft.ElevatedButton(
+            text="Hide details",
+            bgcolor=NOTHING_COLOR,
+            color=ft.colors.WHITE,
+            on_click=show_geek
+            )
 
     progress_bar = ft.ProgressBar(value=0, width=600, visible=False, bar_height=10, border_radius=ft.border_radius.all(10))
 
     main_column =  ft.Column(
             controls=[
-                ft.Row(
-                    controls=[
-                        ft.Text("                ", size=30,),
-                        ]
-                    ),
                 category_dropdown,
                 course_dropdown,
                 folder_field,
                 ft.Row(controls=[pdf_checkbox, ppt_checkbox]),
                 ft.Row(
                     controls=[
-                        ft.ElevatedButton(text="Download",bgcolor=NOTHING_COLOR,color=ft.colors.WHITE, on_click=lambda e: start_download(category_dropdown, course_dropdown, folder_field, pdf_checkbox, ppt_checkbox, progress_bar, downloading_listbox, already_downloaded_listbox, page)),
-                        ]
-                    )
+                        download_btn,
+                        geeky_btn,
+                        ],
+                    ),
+                geeky_card,
+                downloading_card,
+                already_card,
+                progress_bar,
                 ]
             )
 
@@ -373,4 +420,3 @@ def main(page: ft.Page):
                 )
 
 ft.app(target=main, assets_dir="assets")
-
