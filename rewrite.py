@@ -108,7 +108,7 @@ class Scraper:
 
             if os.path.isfile(os.path.join(full_path, name)):
                 print('[ Already there! ] ' + name + count)
-                already_downloaded_listview.controls.append(ft.Text(name))
+                already_downloaded_listview.controls.append(ft.Text(name, color="white"))
                 already_downloaded_listview.update()
                 continue
 
@@ -119,7 +119,7 @@ class Scraper:
             with open(os.path.join(full_path, name), 'wb') as file:
                 file.write(response.content)
             print(DECOR + ' Downloaded ' + name + count)
-            downloading_listview.controls.append(ft.Text(name))
+            downloading_listview.controls.append(ft.Text(name, color="white"))
             downloading_listview.update()
 
             # Update the progress bar
@@ -221,11 +221,11 @@ def main(page: ft.Page):
         def download_thread():
             try:
                 print(DECOR + ' Requesting page...')
-                geeky_listview.controls.append(ft.Text(DECOR + ' Requesting page...'))
+                geeky_listview.controls.append(ft.Text(DECOR + ' Requesting page...', color="white"))
                 geeky_listview.update()
                 course_page = requests.get(download_url, headers=HEADERS)
                 print(DECOR + ' Parsing page into a soup...')
-                geeky_listview.controls.append(ft.Text(DECOR + ' Parsing page into a soup...'))
+                geeky_listview.controls.append(ft.Text(DECOR + ' Parsing page into a soup...', color="white"))
                 geeky_listview.update()
                 soup = BeautifulSoup(course_page.text, 'html.parser')
                 nav_dict = scraper.create_nav_links_dictionary(soup)
@@ -266,7 +266,6 @@ def main(page: ft.Page):
         if dark_mode:
             page.theme_mode = ft.ThemeMode.DARK
             page.dark_theme = ft.Theme(
-                    color_scheme_seed="#1B1B1D",
                     use_material3=True,
                     font_family="Nothing",
                     visual_density="comfortable",
@@ -274,7 +273,6 @@ def main(page: ft.Page):
         else:
             page.theme_mode = ft.ThemeMode.LIGHT
             page.theme = ft.Theme(
-                    color_scheme_seed=ft.colors.RED,
                     use_material3=True,
                     font_family="Nothing",
                     visual_density="comfortable",
@@ -303,9 +301,17 @@ def main(page: ft.Page):
             visible=False
             )
 
-    pdf_checkbox = ft.Checkbox(label="PDF", value=True )
+    pdf_checkbox = ft.Checkbox(label="PDF",
+                               value=True,
+                               active_color="#5C0000",
+                               check_color="white"
+                               )
 
-    ppt_checkbox = ft.Checkbox(label="PPT", value=True)
+    ppt_checkbox = ft.Checkbox(label="PPT",
+                               value=True,
+                               active_color="#5C0000",
+                               check_color="white"
+                               )
 
     downloading_listview = ft.ListView(height=125, width=400, auto_scroll=True)
 
@@ -314,21 +320,29 @@ def main(page: ft.Page):
     geeky_listview = ft.ListView(height=75, width=400, auto_scroll=True)
 
     downloading_card = ft.Card(
+            color=NOTHING_COLOR,
+            elevation=4,
             content=ft.Container(
                 content=ft.Column(
                     [
                         ft.Row([
-                            ft.Icon(ft.icons.DOWNLOAD),
-                            ft.Text("Downloading...", size=20 ),
+                            ft.Icon(ft.icons.DOWNLOAD, color="white"),
+                            ft.Text("Downloading...", size=20 , color="white"),
                             ]),
                         downloading_listview,
                         ]
                     ),
+                border_radius = 10,
                 padding= 10,
-                # blur=ft.Blur(10,10,ft.BlurTileMode.REPEATED),
-                # border_radius=50,
+                gradient=ft.LinearGradient(
+                    begin=ft.alignment.top_left,
+                    end=ft.alignment.bottom_right,
+                    colors=[
+                        "#8B0000",
+                        "#1C000E"
+                        ]
+                    ),
                 ),
-            color=NOTHING_COLOR,
             )
 
     already_card = ft.Card(
@@ -336,13 +350,22 @@ def main(page: ft.Page):
                 content=ft.Column(
                     [
                         ft.Row([
-                            ft.Icon(ft.icons.ALBUM),
-                            ft.Text("Already downloaded:", size=20),
+                            ft.Icon(ft.icons.ALBUM, color="white"),
+                            ft.Text("Already downloaded:", size=20, color="white"),
                             ]),
                         already_downloaded_listview,
                         ]
                     ),
+                border_radius = 10,
                 padding= 10,
+                gradient=ft.LinearGradient(
+                    begin=ft.alignment.top_left,
+                    end=ft.alignment.bottom_right,
+                    colors=[
+                        "#8B0000",
+                        "#1C000E"
+                        ]
+                    ),
                 ),
             color=NOTHING_COLOR,
             )
@@ -352,13 +375,22 @@ def main(page: ft.Page):
                 content=ft.Column(
                     [
                         ft.Row([
-                            ft.Icon(ft.icons.TERMINAL),
-                            ft.Text("What's going on >>", size=20 ),
+                            ft.Icon(ft.icons.TERMINAL, color="white"),
+                            ft.Text("What's going on >>", size=20, color="white"),
                             ]),
                         geeky_listview,
                         ]
                     ),
                 padding= 10,
+                border_radius= 10,
+                gradient=ft.LinearGradient(
+                    begin=ft.alignment.top_left,
+                    end=ft.alignment.bottom_right,
+                    colors=[
+                        "#000000",
+                        "#222222"
+                        ]
+                    ),
                 ),
             color="black",
             visible=True,
@@ -366,14 +398,14 @@ def main(page: ft.Page):
 
     download_btn = ft.ElevatedButton(
             text="Download",
-            bgcolor=NOTHING_COLOR,
+            bgcolor="#5C0000",
             color=ft.colors.WHITE,
             on_click=start_download
             )
 
     geeky_btn = ft.ElevatedButton(
             text="Hide details",
-            bgcolor=NOTHING_COLOR,
+            bgcolor="#000000",
             color=ft.colors.WHITE,
             on_click=toggle_geek
             )
@@ -410,9 +442,9 @@ def main(page: ft.Page):
                     ft.Row(controls=[pdf_checkbox,ppt_checkbox]),
                     ft.Row(controls=[download_btn,geeky_btn]),
                     geeky_card,
+                    progress_bar,
                     downloading_card,
                     already_card,
-                    progress_bar,
                     ]
                 )
             )
