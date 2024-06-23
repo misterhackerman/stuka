@@ -29,10 +29,11 @@ CATEGORIES = {
 
 class Scraper:
     def __init__(self):
-        pass
+        self.session = requests.Session()
+
 
     def find_courses(self, url):
-        page = requests.get(url, headers=HEADERS)
+        page = self.session.get(url, headers=HEADERS)
         doc = BeautifulSoup(page.text, 'html.parser')
         subject = doc.find_all('h6')
         courses = []
@@ -109,7 +110,7 @@ class Scraper:
             if not os.path.isdir(full_path):
                 os.makedirs(full_path)
 
-            response = requests.get(link, headers=HEADERS)
+            response = self.session.get(link, headers=HEADERS)
             with open(os.path.join(full_path, name), 'wb') as file:
                 file.write(response.content)
             print(DECOR + ' Downloaded ' + name + count)
@@ -220,7 +221,7 @@ def main(page: ft.Page):
                 print(DECOR + ' Requesting page...')
                 geeky_listview.controls.append(ft.Text(DECOR + ' Requesting page...', color="white"))
                 geeky_listview.update()
-                course_page = requests.get(download_url, headers=HEADERS)
+                course_page = scraper.session.get(download_url, headers=HEADERS)
                 print(DECOR + ' Parsing page into a soup...')
                 geeky_listview.controls.append(ft.Text(DECOR + ' Parsing page into a soup...', color="white"))
                 geeky_listview.update()
