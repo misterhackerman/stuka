@@ -255,8 +255,11 @@ def main(page: ft.Page):
     def toggle_geek(e):
         if geeky_card.visible == False:
             geeky_card.visible = True
+            geeky_btn.text = "Hide details"
         else:
             geeky_card.visible = False
+            geeky_btn.text = "Show details"
+        geeky_btn.update()
         geeky_card.update()
 
     def toggle_dark_mode(e):
