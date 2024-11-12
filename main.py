@@ -182,6 +182,9 @@ def main(page: ft.Page):
         if ppt_checkbox.value:
             selected_file_types.append('.ppt')
 
+        if m4a_checkbox.value:
+            selected_file_types.append('.m4a')
+
         if category_name == "Select a category":
             show_dialog(page, "Error", "Please select a category.")
             return
@@ -315,6 +318,12 @@ def main(page: ft.Page):
                                )
 
     ppt_checkbox = ft.Checkbox(label="PPT",
+                               value=True,
+                               active_color="#5C0000",
+                               check_color="white"
+                               )
+
+    m4a_checkbox = ft.Checkbox(label="M4A",
                                value=True,
                                active_color="#5C0000",
                                check_color="white"
@@ -455,7 +464,7 @@ def main(page: ft.Page):
                         category_dropdown,
                         course_dropdown,
                         folder_field,
-                        ft.Row(controls=[pdf_checkbox,ppt_checkbox]),
+                        ft.Row(controls=[pdf_checkbox,ppt_checkbox,m4a_checkbox]),
                         ft.Row(controls=[download_btn,geeky_btn]),
                         geeky_card,
                         progress_container,
